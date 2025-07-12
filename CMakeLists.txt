@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.22)
 
 # Allow PATCH_VERSION override from command line/environment
-option(PATCH_VERSION "Patch version" "2")
+set(PATCH_VERSION "2" CACHE STRING "Patch version")
 
 set(PROJECT_VERSION_MAJOR 0)
 set(PROJECT_VERSION_MINOR 0)
