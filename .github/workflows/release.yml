@@ -36,17 +36,17 @@ jobs:
           cd build
           cmake --build . --target package --config Release
 
-      - name: Upload Artifact
+      - name: Upload Artifact (all zips for debug)
         uses: actions/upload-artifact@v4
         with:
           name: uploads
-          path: build/_CPack_Packages/win64/ZIP/${{ env.ARTIFACT_NAME }}
+          path: build/_CPack_Packages/win64/ZIP/*.zip
 
       - name: List build directory
         run: dir build
 
-      - name: List CPack output
-        run: dir build\_CPack_Packages\win64\ZIP
+      - name: List CPack output (wildcard)
+        run: dir build\_CPack_Packages\win64\ZIP\*
 
   upload-release:
     runs-on: ubuntu-latest
@@ -79,3 +79,6 @@ jobs:
           asset_path: ./uploads/${{ env.ARTIFACT_NAME }}
           asset_name: ${{ env.ARTIFACT_NAME }}
           asset_content_type: application/zip
+
+      - name: List downloaded artifacts
+        run: ls -lR uploads
