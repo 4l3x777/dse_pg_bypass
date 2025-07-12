@@ -1,5 +1,7 @@
 # DSE & PG bypass via BYOVD attack
 
+## Если понравился проект, жмякни стар (if you like the project, click star) ^_^
+
 + Обход Driver Signature Enforcement и Patch Guard через BYOVD атаку
 + Данный подход предствлен в образовательных целях (For Educational Purpose)
 
@@ -52,10 +54,11 @@ fffff801`170f2bb0 483935e9495400  cmp     qword ptr [nt!SeCiCallbacks+0x20 (ffff
 ```C++
 - удалена проверка SeValidateImageHeader из ядра
 - логика проверки вынесена в отдельный модуль CI!CiValidateImageHeader (code integrity module)
+```
 
-# research
-статический анализ MiValidateSectionCreate
+#### статический анализ MiValidateSectionCreate
 
+```C++
 __int64 __fastcall MiValidateSectionCreate(
         ULONG_PTR a1,
         __int64 *a2,
@@ -70,8 +73,11 @@ __int64 __fastcall MiValidateSectionCreate(
     if ( qword_140F04080 )
     {
 ...
+```
 
-динамический анализ nt!MiValidateSectionCreate
+#### динамический анализ nt!MiValidateSectionCreate
+
+```C++
   nt!MiValidateSectionCreate: CFG
 	fffff804`df93c494 4053                 push    rbx
 	...
@@ -82,7 +88,11 @@ __int64 __fastcall MiValidateSectionCreate(
 fffff804dff04080 80 54 35 71 04 F8 FF FF -> fffff804`71355480 -> CI!CiValidateImageHeader
 
 fffff804dff04080 -> qword_140F04080 => хранит CI!CiValidateImageHeader callback
+```
 
+#### выводы
+
+```C++
 после вызова (from code integrity module) CI!CiValidateImageHeader возвращает результат проверки подписи
 
 интересующий порядок вызовов : nt!MiValidateSectionCreate -> CI!CiValidateImageHeader
