@@ -7,7 +7,6 @@ on:
 
 env:
   VERSION: 0.0.2
-  ARTIFACT_NAME: DSE_PG_BYPASS-${VERSION}-win64-release.zip
 
 jobs:
   build_windows:
@@ -37,13 +36,13 @@ jobs:
           cmake --build . --target package --config Release
 
       - name: List CPack output (wildcard)
-        run: dir build\_CPack_Packages\win64\ZIP\*
+        run: dir build\_CPack_Packages\win64\ZIP\*.zip
 
-      - name: Upload Artifact
+      - name: Upload Artifact (all zips)
         uses: actions/upload-artifact@v4
         with:
           name: uploads
-          path: build/_CPack_Packages/win64/ZIP/${{ env.ARTIFACT_NAME }}
+          path: build/_CPack_Packages/win64/ZIP/*.zip
 
   upload-release:
     runs-on: ubuntu-latest
@@ -70,12 +69,18 @@ jobs:
       - name: List downloaded artifacts
         run: ls -lR uploads
 
+      - name: Find ZIP file
+        id: find_zip
+        run: |
+          ZIP_FILE=$(find uploads -name '*.zip' | head -n 1)
+          echo "ZIP_FILE=$ZIP_FILE" >> $GITHUB_ENV
+
       - name: Upload Release Asset
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./uploads/${{ env.ARTIFACT_NAME }}
-          asset_name: ${{ env.ARTIFACT_NAME }}
+          asset_path: ${{ env.ZIP_FILE }}
+          asset_name: $(basename ${{ env.ZIP_FILE }})
           asset_content_type: application/zip
