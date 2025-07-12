@@ -1,15 +1,14 @@
 cmake_minimum_required(VERSION 3.22)
 
-# Set version variables
-set(PATCH_VERSION "2" CACHE INTERNAL "Patch version")
+# Allow PATCH_VERSION override from command line/environment
+option(PATCH_VERSION "Patch version" "2")
+
 set(PROJECT_VERSION_MAJOR 0)
 set(PROJECT_VERSION_MINOR 0)
 set(PROJECT_VERSION_PATCH ${PATCH_VERSION})
 set(PROJECT_VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}")
 
 project(DSE_PG_BYPASS VERSION ${PROJECT_VERSION})
-
-include_directories(includes src)
 
 add_executable(
   dse_pg_bypass
@@ -20,11 +19,13 @@ add_executable(
   src/dse_pg_bypass.cpp
 )
 
+target_include_directories(dse_pg_bypass PRIVATE includes src)
+
 set_target_properties(
   dse_pg_bypass
   PROPERTIES
-  CXX_STANDARD 17
-  CXX_STANDARD_REQUIRED ON
+    CXX_STANDARD 17
+    CXX_STANDARD_REQUIRED ON
 )
 
 if (MSVC)
@@ -34,9 +35,9 @@ else()
   target_compile_options(
     dse_pg_bypass 
     PRIVATE
-    -Wall 
-    -Wextra 
-    -pedantic 
+      -Wall 
+      -Wextra 
+      -pedantic 
   )
 endif()
 
@@ -45,10 +46,10 @@ install(
   RUNTIME DESTINATION . COMPONENT release
 )
 
+# --- CPack configuration for packaging ---
 set(CPACK_ARCHIVE_COMPONENT_INSTALL ON)
 set(CPACK_COMPONENTS_ALL release)
 
-# CPack configuration
 if (WIN32)
   set(CPACK_GENERATOR "ZIP")
 else()
