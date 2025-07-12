@@ -13,10 +13,22 @@ DWORD64 KernelUtils::get_sevalidateimageheader_offset()
 {
 	auto SeValidateImageHeader_sig = scanner::pattern(kernel_path.c_str()).scan_now("SeValidateImageHeader", "48 39 35 ? ? ? ? 48 8B F9 48 89 70 F0 44 8B DE").get_result();
 	auto sig_pattern_begin = SeValidateImageHeader_sig.as<uint8_t*>(); 
-	uint32_t rip_offset_SeValidateImageHeader_callback = *(uint32_t*)(&sig_pattern_begin[3]);
-	uint32_t rip_instruction_length = 7;
-	auto SeValidateImageHeader_callback_addr = SeValidateImageHeader_sig.add(rip_offset_SeValidateImageHeader_callback + rip_instruction_length).as<uint64_t*>();
-	return (uint64_t)SeValidateImageHeader_callback_addr - (uint64_t)SeValidateImageHeader_sig.get_base<uint64_t*>();
+	// WIN11 24H2
+	if (sig_pattern_begin == nullptr) {
+		auto MiValidateSectionCreate_sig = scanner::pattern(kernel_path.c_str()).scan_now("MiValidateSectionCreate", "48 83 3D ? ? ? 00 00 0F 84 DB").get_result();
+		sig_pattern_begin = MiValidateSectionCreate_sig.as<uint8_t*>(); 
+		uint32_t rip_offset_CiValidateImageHeader_callback = *(uint32_t*)(&sig_pattern_begin[3]);
+		uint32_t rip_instruction_length = 8;
+		auto MiValidateSectionCreate_callback_addr = MiValidateSectionCreate_sig.add(rip_offset_CiValidateImageHeader_callback + rip_instruction_length).as<uint64_t*>();
+		return (uint64_t)MiValidateSectionCreate_callback_addr - (uint64_t)MiValidateSectionCreate_sig.get_base<uint64_t*>();
+	}
+	// OLDER THEN WIN11 24H2
+	else {
+		uint32_t rip_offset_SeValidateImageHeader_callback = *(uint32_t*)(&sig_pattern_begin[3]);
+		uint32_t rip_instruction_length = 7;
+		auto SeValidateImageHeader_callback_addr = SeValidateImageHeader_sig.add(rip_offset_SeValidateImageHeader_callback + rip_instruction_length).as<uint64_t*>();
+		return (uint64_t)SeValidateImageHeader_callback_addr - (uint64_t)SeValidateImageHeader_sig.get_base<uint64_t*>();
+	}
 }
 
 DWORD64 KernelUtils::get_sevalidateimagedata_offset()

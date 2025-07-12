@@ -18,8 +18,8 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: v0.0.1
-        release_name: DSE_PG_BYPASS-0.0.1
+        tag_name: v0.0.2
+        release_name: DSE_PG_BYPASS-0.0.2
         draft: false
         prerelease: false
         
@@ -35,8 +35,8 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./uploads/DSE_PG_BYPASS-0.0.1-win64-release.zip
-        asset_name: DSE_PG_BYPASS-0.0.1-win64-release.zip
+        asset_path: ./uploads/DSE_PG_BYPASS-0.0.2-win64-release.zip
+        asset_name: DSE_PG_BYPASS-0.0.2-win64-release.zip
         asset_content_type: application/zip
         
   build_windows:
@@ -49,7 +49,7 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake -DPATCH_VERSION=1 ../
+          cmake -DPATCH_VERSION=2 ../
           
       - name: Running cmake
         shell: cmd
@@ -67,4 +67,4 @@ jobs:
         uses: actions/upload-artifact@v1
         with:
           name: uploads
-          path: ./build/DSE_PG_BYPASS-0.0.1-win64-release.zip
+          path: ./build/DSE_PG_BYPASS-0.0.2-win64-release.zip

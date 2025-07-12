@@ -8,7 +8,7 @@
 + Функции ядра Windows, участвующие в валидации image (driver) PE
 + Интересущие методы, приведенные указатели функций, возвращающие NTSTATUS
 + `qword_140C375A0` и `qword_140C375С8`
-
+### SeValidateImageHeader для ядер WIN 11 24H2 и более "древних"
 ```C++
 __int64 __fastcall SeValidateImageHeader(
         __int64 a1,
@@ -45,9 +45,72 @@ fffff801`170f2bab 33f6            xor     esi,esi
 fffff801`170f2bad 488bda          mov     rbx,rdx
 // нас интересует данный callback
 fffff801`170f2bb0 483935e9495400  cmp     qword ptr [nt!SeCiCallbacks+0x20 (fffff801`17a375a0)],rsi // адресация на qword_140C375A0 -> RVA 0xc375a0
-...................................................
 ```
 
+### CiValidateImageHeader для ядера WIN 11 24H2 (возможно и новее)
+
+```C++
+- удалена проверка SeValidateImageHeader из ядра
+- логика проверки вынесена в отдельный модуль CI!CiValidateImageHeader (code integrity module)
+
+# research
+статический анализ MiValidateSectionCreate
+
+__int64 __fastcall MiValidateSectionCreate(
+        ULONG_PTR a1,
+        __int64 *a2,
+        unsigned int a3,
+        __int64 a4,
+        int a5,
+        char a6,
+        char a7)
+{
+...
+	v67 = 0;
+    if ( qword_140F04080 )
+    {
+...
+
+динамический анализ nt!MiValidateSectionCreate
+  nt!MiValidateSectionCreate: CFG
+	fffff804`df93c494 4053                 push    rbx
+	...
+	fffff804`df93cac4 488b05b5755c00       mov     rax, qword ptr [ntkrnlmp!SeCiCallbacks+0x20 (fffff804dff04080)] // адресация на qword_140F04080 -> RVA 0x5c7686
+	fffff804`df93cacb e8b03c2700           call    ntkrnlmp!KscpCfgDispatchUserCallTargetEsSmep (fffff804dfbb0780)
+	fffff804`df93cad0 8bf0                 mov     esi, eax
+	
+fffff804dff04080 80 54 35 71 04 F8 FF FF -> fffff804`71355480 -> CI!CiValidateImageHeader
+
+fffff804dff04080 -> qword_140F04080 => хранит CI!CiValidateImageHeader callback
+
+после вызова (from code integrity module) CI!CiValidateImageHeader возвращает результат проверки подписи
+
+интересующий порядок вызовов : nt!MiValidateSectionCreate -> CI!CiValidateImageHeader
+
+__int64 __fastcall CiValidateImageHeader(
+        struct _FILE_OBJECT *a1,
+        void *a2,
+        unsigned int a3,
+        __int64 a4,
+        int a5,
+        int *a6,
+        _BYTE *a7,
+        __int64 a8,
+        __int64 a9,
+        unsigned int a10,
+        _QWORD *a11,
+        char a12,
+        char a13,
+        _BYTE *a14,
+        int *a15,
+        __int64 a16,
+        __int64 a17)
+{
+...
+}
+```
+
+### SeValidateImageData для всех версий
 ```C++
 __int64 __fastcall SeValidateImageData(__int64 a1)
 {
@@ -65,7 +128,6 @@ fffff802`17086b10 488b05b10a5b00  mov     rax,qword ptr [nt!SeCiCallbacks+0x28 (
 fffff802`17086b17 4c8bd1          mov     r10,rcx
 fffff802`17086b1a 4885c0          test    rax,rax
 fffff802`17086b1d 7420            je      nt!SeValidateImageData+0x33 (fffff802`17086b3f)
-...................................................
 ```
 
 ## WriteUP Reversing PatchGuard
@@ -171,8 +233,12 @@ fffff802`175177ee 751c            jne     nt!KiFilterFiberContext+0x1bdc (fffff8
 ## Пример работы
 
 + тестовая система Windows 11 версии 10.0.22631.3374 с последними обновлениями
++ тестовая система Windows 11 версии 10.0.26100.4061 с последними обновлениями
 
-![alt text](/img/dse_pg_bypass.gif)
+### Тестовая система Windows 11 версии 10.0.22631.3374
+![alt text](/img/dse_pg_bypass_23h2.gif)
+### Тестовая система Windows 11 версии 10.0.26100.4061
+![alt text](/img/dse_pg_bypass_24h2.gif)
 
 ## Ссылки
 

