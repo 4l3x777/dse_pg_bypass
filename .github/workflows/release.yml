@@ -40,7 +40,12 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: uploads
-          path: ./build/${{ env.ARTIFACT_NAME }}
+          path: build/_CPack_Packages/win64/ZIP/${{ env.ARTIFACT_NAME }}
+
+      - name: List build directory
+        run: dir build
+      - name: List CPack output
+        run: dir build\_CPack_Packages\win64\ZIP
 
   upload-release:
     runs-on: ubuntu-latest
