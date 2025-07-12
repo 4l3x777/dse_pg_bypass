@@ -76,8 +76,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./uploads/${{ env.ARTIFACT_NAME }}
-          asset_name: ${{ env.ARTIFACT_NAME }}
+          asset_path: ./uploads/dse_pg_bypass-0.0.2-win64-release.zip
+          asset_name: dse_pg_bypass-0.0.2-win64-release.zip
           asset_content_type: application/zip
 
       - name: List downloaded artifacts
