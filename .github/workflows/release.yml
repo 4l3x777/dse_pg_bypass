@@ -24,7 +24,7 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake -DPATCH_VERSION=${{ env.PATCH_VERSION }} ../
+          cmake -DPATCH_VERSION=$PATCH_VERSION ../
 
       - name: Build
         run: |
@@ -37,7 +37,7 @@ jobs:
           cmake --build . --target package --config Release
 
       - name: Upload Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: uploads
           path: ./build/${{ env.ARTIFACT_NAME }}
