@@ -74,6 +74,8 @@ jobs:
         run: |
           ZIP_FILE=$(find uploads -name '*.zip' | head -n 1)
           echo "ZIP_FILE=$ZIP_FILE" >> $GITHUB_ENV
+          ASSET_NAME=$(basename "$ZIP_FILE")
+          echo "ASSET_NAME=$ASSET_NAME" >> $GITHUB_ENV
 
       - name: Upload Release Asset
         uses: actions/upload-release-asset@v1
@@ -82,5 +84,5 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ${{ env.ZIP_FILE }}
-          asset_name: $(basename ${{ env.ZIP_FILE }})
+          asset_name: ${{ env.ASSET_NAME }}
           asset_content_type: application/zip
