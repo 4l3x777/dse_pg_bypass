@@ -24,7 +24,7 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake -DPATCH_VERSION=$PATCH_VERSION ../
+          cmake -DPATCH_VERSION=${{ env.PATCH_VERSION }} ../
 
       - name: Build
         run: |
